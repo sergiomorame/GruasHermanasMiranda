@@ -1,0 +1,36 @@
+/* =========================================================
+   responsive.css — adaptación a laptop, tableta y teléfono
+   ========================================================= */
+
+@media (max-width: 1440px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1180px) {
+  .grid-main { grid-template-columns: minmax(0, 1fr); }
+  .side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-bottom { grid-template-columns: minmax(0, 1fr); }
+  .map { height: 520px; }
+}
+
+@media (max-width: 900px) {
+  .grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .side { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  :root { --fs-title: 21px; --fs-kpi: 24px; --pad: 14px; --gap: 12px; }
+  .app { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-5 { grid-template-columns: minmax(0, 1fr); }
+  .map { height: 420px; }
+  .brand__logo { width: 36px; height: 36px; }
+  .filters .btn { flex: 1 1 100%; }
+  .chart--tall { height: 600px; }
+}
+
+@media print {
+  .filters, .toolbar, .basemaps, .btn { display: none !important; }
+  .card, .kpi { box-shadow: none; break-inside: avoid; }
+}

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Grúas Hermanas Miranda · Sistema de Ruteo</title>
+  <meta name="description" content="Control operativo y análisis territorial de rutas concesionadas, corralones y unidades de grúas.">
+  <link rel="icon" type="image/svg+xml" href="assets/logos/logo-ghm.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;500&family=IBM+Plex+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/maps.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logos/logo-ghm.svg" alt="" class="brand__logo" width="44" height="44">
+      <div class="brand__text">
+        <h1 class="brand__title">Grúas Hermanas Miranda</h1>
+        <p class="brand__sub">Sistema de ruteo y control operativo · Carreteras concesionadas · Corralones HEMI</p>
+      </div>
+    </div>
+    <div class="topbar__meta">
+      <span class="chip"><img src="assets/icons/calendar.svg" alt="" class="ico">Operación <b id="meta-fecha">—</b></span>
+      <span class="chip"><img src="assets/icons/clock.svg" alt="" class="ico"><b id="meta-hora">—</b></span>
+      <span class="chip" id="meta-fuente"><span class="dot"></span><span id="meta-fuente-txt">Cargando datos…</span></span>
+      <span class="chip chip--warn" title="Aún no hay datos GPS reales">Unidades de ejemplo</span>
+      <button class="btn btn--icon" id="btn-tema" type="button" aria-label="Cambiar tema claro u oscuro"><img src="assets/icons/theme.svg" alt="" class="ico"></button>
+    </div>
+  </header>
+
+  <p class="takeaway" id="takeaway">Cargando información territorial…</p>
+
+  <!-- ===================== FILTROS ===================== -->
+  <section class="filters card" id="filtros" aria-label="Filtros">
+    <label class="field"><span>Entidad</span><select id="f-entidad"></select></label>
+    <label class="field"><span>Región</span><select id="f-region"></select></label>
+    <label class="field"><span>Municipio</span><select id="f-municipio"></select></label>
+    <label class="field"><span>Ruta concesionada</span><select id="f-ruta"></select></label>
+    <button class="btn" id="f-limpiar" type="button"><img src="assets/icons/reset.svg" alt="" class="ico">Limpiar filtros</button>
+  </section>
+
+  <!-- ===================== INDICADORES ===================== -->
+  <section class="kpis" id="indicadores" aria-label="Indicadores clave">
+    <article class="kpi kpi--blue"><span class="kpi__label">Rutas concesionadas</span><span class="kpi__value" id="k-rutas">—</span><span class="kpi__note" id="k-rutas-n">—</span></article>
+    <article class="kpi kpi--orange"><span class="kpi__label">Kilómetros concesionados</span><span class="kpi__value" id="k-km">—</span><span class="kpi__note" id="k-km-n">Medidos sobre la geometría, sin traslapes</span></article>
+    <article class="kpi kpi--green"><span class="kpi__label">Municipios atravesados</span><span class="kpi__value" id="k-mun">—</span><span class="kpi__note" id="k-mun-n">—</span></article>
+    <article class="kpi kpi--teal"><span class="kpi__label">Cobertura a 25 km</span><span class="kpi__value" id="k-cob">—</span><span class="kpi__note">Km de ruta a menos de 25 km de un corralón</span></article>
+    <article class="kpi kpi--violet"><span class="kpi__label">Unidades en operación</span><span class="kpi__value" id="k-uni">—</span><span class="kpi__note" id="k-uni-n">—</span></article>
+    <article class="kpi kpi--ink"><span class="kpi__label">Corralones</span><span class="kpi__value" id="k-corr">—</span><span class="kpi__note" id="k-corr-n">—</span></article>
+  </section>
+
+  <!-- ===================== MAPA + SEGUIMIENTO ===================== -->
+  <section class="grid-main" id="operacion">
+    <article class="card card--map" id="panel-mapa">
+      <header class="card__head">
+        <h2 class="card__title"><img src="assets/icons/map.svg" alt="" class="ico">Mapa de rutas y ubicaciones</h2>
+        <div class="toolbar" role="group" aria-label="Capas">
+          <button class="btn btn--toggle" data-layer="rutas" aria-pressed="true" type="button">Rutas</button>
+          <button class="btn btn--toggle" data-layer="unidades" aria-pressed="true" type="button">Unidades</button>
+          <button class="btn btn--toggle" data-layer="corralones" aria-pressed="true" type="button">Corralones</button>
+          <button class="btn btn--toggle" data-layer="municipios" aria-pressed="true" type="button">Municipios</button>
+          <button class="btn btn--toggle" data-layer="calor" aria-pressed="false" type="button">Calor</button>
+        </div>
+      </header>
+      <div class="basemaps" role="group" aria-label="Mapa base">
+        <span class="basemaps__label">Mapa base</span>
+        <button class="btn btn--seg" data-base="claro" aria-pressed="true" type="button">Claro</button>
+        <button class="btn btn--seg" data-base="oscuro" aria-pressed="false" type="button">Oscuro</button>
+        <button class="btn btn--seg" data-base="calles" aria-pressed="false" type="button">Calles</button>
+        <button class="btn btn--seg" data-base="satelite" aria-pressed="false" type="button">Satélite</button>
+        <button class="btn btn--seg" data-base="terreno" aria-pressed="false" type="button">Terreno</button>
+        <button class="btn btn--seg" data-base="ninguno" aria-pressed="false" type="button">Sin fondo</button>
+      </div>
+      <div class="map" id="map" role="region" aria-label="Mapa de rutas"></div>
+      <div class="legend" id="legend">
+        <span><i class="sw sw--ruta"></i>Ruta concesionada</span>
+        <span><i class="sw sw--dup"></i>Tramo traslapado</span>
+        <span><i class="sw sw--corr"></i>Corralón HEMI</span>
+        <span><i class="sw sw--ok"></i>En ruta</span>
+        <span><i class="sw sw--acc"></i>En servicio</span>
+        <span><i class="sw sw--bad"></i>Detenida</span>
+        <span><i class="sw sw--mut"></i>Disponible</span>
+        <span><i class="sw sw--mun"></i>Municipio con concesión</span>
+      </div>
+      <div class="muninfo" id="muninfo" hidden>
+        <strong id="mi-nombre">—</strong>
+        <span>Región <b id="mi-region">—</b></span>
+        <span>Km concesionados <b id="mi-km">—</b></span>
+        <span>Tramos <b id="mi-tramos">—</b></span>
+        <span>Corralón más cercano <b id="mi-dist">—</b></span>
+        <button class="btn btn--sm" id="mi-cerrar" type="button">Quitar municipio</button>
+      </div>
+    </article>
+
+    <div class="side">
+      <article class="card" id="panel-seguimiento">
+        <header class="card__head">
+          <h2 class="card__title"><img src="assets/icons/truck.svg" alt="" class="ico">Seguimiento de unidades</h2>
+          <span class="tag tag--warn">Ejemplo</span>
+        </header>
+        <p class="card__hint">Posición simulada sobre cada ruta concesionada. Clic en una unidad para ubicarla.</p>
+        <div class="table-wrap table-wrap--short">
+          <table class="table" id="tbl-unidades">
+            <thead><tr><th>Unidad</th><th>Ubicación</th><th>Avance</th><th>Estado</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="progress-row">Avance promedio <span class="bar"><i id="avance-prom-bar"></i></span><b id="avance-prom">—</b></div>
+      </article>
+
+      <article class="card" id="panel-alertas">
+        <header class="card__head">
+          <h2 class="card__title"><img src="assets/icons/alert.svg" alt="" class="ico">Alertas e incidencias <span class="badge" id="alertas-n">0</span></h2>
+        </header>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" aria-selected="true" data-tab="calidad" type="button">Calidad de datos</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="operacion" type="button">Operación (ejemplo)</button>
+        </div>
+        <div class="table-wrap table-wrap--short">
+          <table class="table" id="tbl-alertas">
+            <thead><tr><th>Ref.</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== ANÁLISIS ===================== -->
+  <section class="grid-5" id="analisis">
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Avance de recorridos</h2><span class="tag tag--warn">Ejemplo</span></header>
+      <p class="card__hint">Avance de cada unidad sobre su ruta. Clic para filtrar la ruta.</p>
+      <div class="hbars" id="avance-list"></div>
+    </article>
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Rutas por entidad y municipio</h2></header>
+      <p class="card__hint">Km concesionados por entidad y municipios con más km.</p>
+      <div class="chart chart--donut"><canvas id="ch-entidad" aria-label="Km por entidad" role="img"></canvas></div>
+      <div class="ranklist" id="top-municipios"></div>
+    </article>
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Cobertura territorial</h2></header>
+      <p class="card__hint">Km de ruta concesionada dentro de cada municipio.</p>
+      <div class="minimap" id="mini-cobertura"></div>
+      <div class="scale-legend" id="leg-cobertura"></div>
+    </article>
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Distribución por distancia</h2></header>
+      <p class="card__hint">Km de ruta según su distancia al corralón HEMI más cercano.</p>
+      <div class="chart"><canvas id="ch-bandas" aria-label="Km por distancia al corralón" role="img"></canvas></div>
+      <p class="card__foot" id="bandas-nota">—</p>
+    </article>
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Mapa de calor</h2></header>
+      <p class="card__hint">Densidad de kilómetros concesionados (muestreo cada 500 m).</p>
+      <div class="minimap" id="mini-calor"></div>
+      <div class="scale-legend"><span>Baja</span><i class="heat-ramp"></i><span>Alta</span></div>
+    </article>
+  </section>
+
+  <!-- ===================== REGIONES + LONGITUD ===================== -->
+  <section class="grid-bottom" id="regiones">
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Indicadores por región</h2></header>
+      <p class="card__hint">Regiones con rutas concesionadas. Clic en una región para filtrar todo el tablero.</p>
+      <div class="regions" id="region-cards"></div>
+    </article>
+    <article class="card">
+      <header class="card__head"><h2 class="card__title">Longitud por ruta</h2></header>
+      <p class="card__hint">Km declarados en la capa contra km medidos sobre la geometría (tramos sin traslape).</p>
+      <div class="chart chart--tall" id="wrap-longitud"><canvas id="ch-longitud" aria-label="Longitud por ruta" role="img"></canvas></div>
+    </article>
+  </section>
+
+  <!-- ===================== CATÁLOGO ===================== -->
+  <section class="card" id="catalogo">
+    <header class="card__head">
+      <h2 class="card__title"><img src="assets/icons/route.svg" alt="" class="ico">Catálogo de rutas concesionadas</h2>
+      <input class="search" id="cat-buscar" type="search" placeholder="Buscar ruta, municipio o descripción" aria-label="Buscar en el catálogo">
+    </header>
+    <div class="table-wrap">
+      <table class="table table--catalog" id="tbl-catalogo">
+        <thead><tr>
+          <th><button type="button" data-sort="clave">Clave</button></th>
+          <th><button type="button" data-sort="nombre">Nombre</button></th>
+          <th class="num"><button type="button" data-sort="longitud_km">Km declarados</button></th>
+          <th class="num"><button type="button" data-sort="longitud_geom_km">Km medidos</button></th>
+          <th><button type="button" data-sort="region">Región</button></th>
+          <th><button type="button" data-sort="nmun">Municipios</button></th>
+          <th><button type="button" data-sort="corralon_cercano">Corralón cercano</button></th>
+          <th class="num"><button type="button" data-sort="dist_corralon_km">Distancia (km)</button></th>
+          <th>Observación</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Fuentes: límites de entidades y municipios, carreteras concesionadas y ubicación de grúas (GeoJSON del proyecto, EPSG:4326). Mapas base © OpenStreetMap contributors, © CARTO, Esri World Imagery y OpenTopoMap. Las unidades y su avance son datos de ejemplo hasta contar con el GPS de la flota. Las regiones operativas son una agrupación propuesta.</p>
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+
+<script src="js/routes.js"></script>
+<script src="js/filters.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

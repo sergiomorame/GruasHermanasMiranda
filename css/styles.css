@@ -1,0 +1,162 @@
+/* =========================================================
+   styles.css — tokens de diseño, base tipográfica y layout
+   Grúas Hermanas Miranda · Sistema de Ruteo
+   ========================================================= */
+
+:root {
+  /* superficies */
+  --bg: #f4f6f8;
+  --panel: #ffffff;
+  --panel-2: #f7f9fb;
+  --line: #e1e6ec;
+  --line-strong: #c9d2dc;
+  /* texto */
+  --fg: #16202b;
+  --fg-muted: #5f6e7e;
+  --fg-soft: #8896a5;
+  /* marca y semántica */
+  --brand: #0d5c9e;
+  --accent: #2f7fe0;
+  --ok: #17924f;
+  --warn: #c77a0a;
+  --bad: #d23b3b;
+  --violet: #6c4fd8;
+  --teal: #0f9c8e;
+  --road: #e8892b;
+  --road-case: #ffffff;
+  /* mapa */
+  --map-bg: #e9edf1;
+  /* tipografía */
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --fs-cap: 12px;
+  --fs-body: 14px;
+  --fs-h2: 15px;
+  --fs-kpi: 30px;
+  --fs-title: 26px;
+  /* espaciado y forma */
+  --gap: 16px;
+  --gap-sm: 8px;
+  --pad: 18px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(16, 32, 48, .05), 0 2px 8px rgba(16, 32, 48, .04);
+  --shadow-pop: 0 8px 24px rgba(16, 32, 48, .16);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0c1622;
+  --panel: #12202f;
+  --panel-2: #172839;
+  --line: #22374c;
+  --line-strong: #2f4a63;
+  --fg: #e6edf5;
+  --fg-muted: #9fb0c2;
+  --fg-soft: #7489a0;
+  --brand: #5aa7ef;
+  --accent: #4b97f2;
+  --ok: #34c27a;
+  --warn: #f0a640;
+  --bad: #f06060;
+  --violet: #9b85f5;
+  --teal: #2dc6b6;
+  --road: #f29a3a;
+  --road-case: #0c1622;
+  --map-bg: #0f1d2b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, .45);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 var(--fs-body)/1.45 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+b, strong { font-weight: 600; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-block: 18px 32px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: var(--gap);
+}
+
+.ico { width: 16px; height: 16px; flex: none; vertical-align: -3px; }
+
+/* ---------- encabezado ---------- */
+.topbar { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+.brand { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.brand__logo { width: 44px; height: 44px; flex: none; }
+.brand__text { min-width: 0; }
+.brand__title { margin: 0; font: 500 var(--fs-title)/1.1 var(--font-serif); letter-spacing: -.01em; text-wrap: balance; }
+.brand__sub { margin: 4px 0 0; color: var(--fg-muted); font-size: 13px; }
+.topbar__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.takeaway { margin: -4px 0 0; max-width: 90ch; font-size: 15px; }
+.takeaway b { color: var(--fg); }
+
+.footer { color: var(--fg-soft); font-size: var(--fs-cap); max-width: 110ch; }
+.footer p { margin: 0; }
+
+/* ---------- controles base ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--line);
+  font-size: var(--fs-cap); color: var(--fg-muted); white-space: nowrap;
+}
+.chip b { color: var(--fg); }
+.chip--warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-soft); }
+.chip.is-api .dot { background: var(--ok); }
+.chip.is-static .dot { background: var(--warn); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--radius-sm);
+  background: var(--panel); border: 1px solid var(--line-strong);
+  font-size: 13px; cursor: pointer; white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn:hover { border-color: var(--fg-soft); }
+.btn--icon { padding: 6px; width: 32px; height: 32px; border-radius: 999px; }
+.btn--sm { padding: 3px 10px; font-size: 12px; }
+.btn--toggle[aria-pressed="true"], .btn--seg[aria-pressed="true"] { background: var(--fg); color: var(--panel); border-color: var(--fg); }
+.btn--seg { padding: 4px 10px; font-size: 12px; }
+
+.tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
+.tag--warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 13%, transparent); }
+
+.badge {
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px;
+  border-radius: 11px; background: var(--bad); color: #fff; font-size: 12px; font-weight: 700;
+}
+
+.search {
+  width: min(100%, 340px); padding: 7px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong); background: var(--panel-2);
+}
+
+.tooltip {
+  position: fixed; z-index: 2000; pointer-events: none; max-width: 280px;
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-pop);
+  padding: 6px 9px; font-size: 12px; line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

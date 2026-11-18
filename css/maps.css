@@ -1,0 +1,89 @@
+/* =========================================================
+   maps.css — mapa principal, minimapas y estilos de Leaflet
+   ========================================================= */
+
+.card--map { gap: 10px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.basemaps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.basemaps__label { font-size: var(--fs-cap); color: var(--fg-muted); margin-right: 2px; }
+
+.map {
+  height: 600px;
+  border-radius: var(--radius-sm);
+  background: var(--map-bg);
+  border: 1px solid var(--line);
+  z-index: 0;
+}
+.minimap { height: 230px; border-radius: var(--radius-sm); background: var(--map-bg); border: 1px solid var(--line); z-index: 0; }
+
+/* sin fondo: municipios y entidades hacen de mapa base */
+.map.is-nobase { background: var(--panel-2); }
+
+/* leyenda */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--fs-cap); color: var(--fg-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.sw--ruta { width: 18px; height: 4px; border-radius: 2px; background: var(--road); }
+.sw--dup { width: 18px; height: 0; border-radius: 0; border-top: 3px dotted var(--road); }
+.sw--corr { border-radius: 3px; background: var(--fg); }
+.sw--ok { background: var(--ok); }
+.sw--acc { background: var(--accent); }
+.sw--bad { background: var(--bad); }
+.sw--mut { background: var(--fg-soft); }
+.sw--mun { border-radius: 2px; background: color-mix(in srgb, var(--accent) 22%, var(--panel)); border: 1px solid var(--line-strong); }
+
+/* panel de municipio */
+.muninfo {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline;
+  padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: var(--fs-cap); color: var(--fg-muted);
+}
+.muninfo strong { font-size: 15px; color: var(--fg); }
+.muninfo b { color: var(--fg); }
+.muninfo .btn { margin-left: auto; }
+
+/* ---------- Leaflet ---------- */
+.leaflet-container { font-family: var(--font-sans); background: var(--map-bg); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--panel); color: var(--fg); border-bottom-color: var(--line); }
+.leaflet-bar { border: 1px solid var(--line-strong) !important; box-shadow: var(--shadow) !important; }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--panel) 85%, transparent) !important; color: var(--fg-muted); font-size: 10px; }
+.leaflet-control-attribution a { color: var(--fg-muted); }
+.leaflet-control-scale-line { background: color-mix(in srgb, var(--panel) 80%, transparent); border-color: var(--fg); color: var(--fg); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--fg); box-shadow: var(--shadow-pop); }
+.leaflet-popup-content { margin: 10px 14px; font-size: 12.5px; line-height: 1.45; }
+.leaflet-popup-content h4 { margin: 0 0 4px; font-size: 13.5px; }
+.leaflet-popup-content .muted { color: var(--fg-muted); }
+.leaflet-tooltip.lbl {
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line-strong);
+  border-radius: 5px; padding: 1px 6px; font-size: 11px; font-weight: 600; box-shadow: none;
+}
+.leaflet-tooltip.lbl::before { display: none; }
+.leaflet-tooltip.lbl--corr { background: var(--fg); color: var(--panel); border-color: var(--fg); }
+.leaflet-tooltip.tip { background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: var(--shadow-pop); font-size: 12px; }
+
+/* marcadores */
+.mk-corr {
+  width: 20px; height: 20px; border-radius: 4px;
+  background: var(--fg); border: 3px solid var(--panel);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+  display: grid; place-items: center;
+}
+.mk-corr::after { content: ""; width: 6px; height: 6px; border-radius: 1px; background: var(--road); }
+
+.mk-unit { position: relative; width: 18px; height: 18px; }
+.mk-unit__dot {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2.5px solid var(--panel); box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+}
+.mk-unit--ok .mk-unit__dot { background: var(--ok); }
+.mk-unit--acc .mk-unit__dot { background: var(--accent); }
+.mk-unit--bad .mk-unit__dot { background: var(--bad); }
+.mk-unit--mut .mk-unit__dot { background: var(--fg-soft); }
+.mk-unit--bad::before {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid var(--bad); opacity: .8;
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse { from { transform: scale(.6); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
+
+.minimap .leaflet-control-attribution { display: none; }
